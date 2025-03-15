@@ -1,0 +1,48 @@
+
+### Example Verilog Code for MUX and DEMUX
+```verilog
+module mux_4to1 (
+    input wire [3:0] data_in,
+    input wire [1:0] sel,
+    output wire out
+);
+    assign out = (sel == 2'b00) ? data_in[0] :
+                 (sel == 2'b01) ? data_in[1] :
+                 (sel == 2'b10) ? data_in[2] :
+                 data_in[3];
+endmodule
+
+module demux_1to4 (
+    input wire data_in,
+    input wire [1:0] sel,
+    output wire [3:0] out
+);
+    assign out[0] = data_in & ~sel[1] & ~sel[0];
+    assign out[1] = data_in & ~sel[1] &  sel[0];
+    assign out[2] = data_in &  sel[1] & ~sel[0];
+    assign out[3] = data_in &  sel[1] &  sel[0];
+endmodule
+
+// Testbench
+module testbench;
+    reg [3:0] data;
+    reg [1:0] sel;
+    wire mux_out;
+    wire [3:0] demux_out;
+
+    mux_4to1 mux (.data_in(data), .sel(sel), .out(mux_out));
+    demux_1to4 demux (.data_in(data[0]), .sel(sel), .out(demux_out));
+
+    initial begin
+        $monitor("Data=%b Sel=%b | MUX_Out=%b | DEMUX_Out=%b", data, sel, mux_out, demux_out);
+        
+        data = 4'b1010; sel = 2'b00; #10;
+        data = 4'b1010; sel = 2'b01; #10;
+        data = 4'b1010; sel = 2'b10; #10;
+        data = 4'b1010; sel = 2'b11; #10;
+        
+        $finish;
+    end
+endmodule
+```
+
